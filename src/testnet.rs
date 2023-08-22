@@ -24,13 +24,26 @@ pub mod parasol {
     /// A provider for Sunscreen's Parasol testnet.
     ///
     /// ```no_run
+    /// use std::str::FromStr;
+    /// use ethers::{
+    ///     providers::Middleware,
+    ///     signers::{LocalWallet, Signer},
+    ///     types::{Address, TransactionRequest},
+    /// };
+    /// use sunscreen_web3::testnet::parasol::PARASOL;
+    ///
+    /// # #[tokio::main(flavor = "current_thread")]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// // Instantiate a local wallet
-    /// let wallet = LocalWallet::from_str("some_private_key").unwrap();
+    /// let wallet = LocalWallet::from_str("some_private_key")?;
     /// // Make a client that can sign and submit transactions from the wallet to the Parasol network
     /// let client = PARASOL.client(wallet);
-    /// // Send yourself 100 gwei
-    /// let tx = TransactionRequest::new().to(wallet.address()).value(100);
-    /// client.send_transaction(tx, None).await.unwrap();
+    /// // Send someone 100 gwei
+    /// let address = "0x0".parse::<Address>()?;
+    /// let tx = TransactionRequest::new().to(address).value(100);
+    /// client.send_transaction(tx, None).await?;
+    /// # Ok(())
+    /// # }
     /// ```
     pub const PARASOL: TestnetProvider = TestnetProvider {
         rpc_url: RPC_URL,
