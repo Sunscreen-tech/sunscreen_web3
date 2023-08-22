@@ -4,6 +4,9 @@ on:
       - main
   pull_request:
 
+env:
+  FOUNDRY_REV: d73c9a1de0dbfaa9ffaeb7e82839ff09f302ac0b
+
 name: Rust
 
 jobs:
@@ -20,6 +23,28 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
+
+      - name: Cache - restore anvil binary
+        id: cache
+        uses: actions/cache/restore@v3
+        with:
+          path: ~/.cargo/bin/anvil
+          key: ${{ runner.os }}-${{ env.FOUNDRY_REV }}-anvil
+
+      - name: Install anvil
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          cargo install \
+            --git https://github.com/Sunscreen-tech/foundry \
+            --rev ${{ env.FOUNDRY_REV }} \
+            --profile local anvil
+
+      - name: Cache - save anvil binary
+        uses: actions/cache/save@v3
+        if: always()
+        with:
+          path: ~/.cargo/bin/anvil
+          key: ${{ runner.os }}-${{ env.FOUNDRY_REV }}-anvil
 
       - name: cargo test
         run: cargo test --workspace --all-features
