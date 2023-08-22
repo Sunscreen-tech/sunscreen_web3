@@ -41,7 +41,7 @@ pub static BOB: Lazy<LocalWallet> = Lazy::new(|| {
 
 /// A simple way to construct and run a local node for development purposes.
 pub struct Node {
-    anvil: AnvilInstance,
+    pub anvil: AnvilInstance,
 }
 
 impl Default for Node {
