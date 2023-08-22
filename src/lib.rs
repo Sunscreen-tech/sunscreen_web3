@@ -1,11 +1,11 @@
 use std::{fs::File, path::Path, str::FromStr, sync::Arc};
 
 use ethers::{
-    abi::{self, token::Tokenizer, Bytes},
+    abi::{self, token::Tokenizer},
     prelude::{k256, SignerMiddleware},
     providers::{Http, Provider},
     signers::Wallet,
-    types::U256,
+    types::{Bytes, U256},
 };
 pub mod testing;
 pub mod testnet;
@@ -37,8 +37,7 @@ pub trait AsBytes: Sized {
     fn from_bytes(bytes: &Bytes) -> Result<Self>;
     /// Convert from an FHE type into bytes. This is useful for supplying contract method
     /// arguments.
-    #[allow(clippy::wrong_self_convention)]
-    fn into_bytes(&self) -> Result<Bytes>;
+    fn as_bytes(&self) -> Result<Bytes>;
 }
 
 /// When generating keypairs, you'll need to save your private key (and it is often convenient to
@@ -94,7 +93,7 @@ macro_rules! impl_bytes_via_bincode {
                     Ok(val)
                 }
 
-                fn into_bytes(&self) -> Result<Bytes> {
+                fn as_bytes(&self) -> Result<Bytes> {
                     let bytes = bincode::serialize(self)?.into();
                     Ok(bytes)
                 }
