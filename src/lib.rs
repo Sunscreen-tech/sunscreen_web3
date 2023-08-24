@@ -4,7 +4,7 @@ use ethers::{
     abi::{self, token::Tokenizer},
     prelude::{k256, SignerMiddleware},
     providers::{Http, Provider},
-    signers::Wallet,
+    signers::{self, LocalWallet, Wallet},
     types::{Bytes, U256},
 };
 pub mod testing;
@@ -19,6 +19,8 @@ pub enum Error {
     Conversion(#[from] bincode::Error),
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
+    #[error("Wallet error: {0}")]
+    Wallet(#[from] signers::WalletError),
     #[error(transparent)]
     Other(#[from] anyhow::Error),
 }
@@ -128,6 +130,20 @@ macro_rules! impl_file_via_bincode {
 
 impl_file_via_bincode! {
     PublicKey, PrivateKey, Ciphertext
+}
+
+impl AsFile for LocalWallet {
+    fn read<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let bytes = std::fs::read(path)?;
+        let wallet = LocalWallet::from_bytes(&bytes)?;
+        Ok(wallet)
+    }
+
+    fn write<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+        let bytes = self.signer().to_bytes();
+        std::fs::write(path, bytes)?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
